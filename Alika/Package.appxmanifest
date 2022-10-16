@@ -8,15 +8,15 @@
   IgnorableNamespaces="uap mp uap3">
 
   <Identity
-    Name="0a816845-f771-4ecd-a4ad-e8e7992ca001"
-    Publisher="CN=al3ta"
-    Version="0.4.0.0" />
+    Name="AlikaV1"
+    Publisher="CN=media"
+    Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="0a816845-f771-4ecd-a4ad-e8e7992ca001" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>Alika</DisplayName>
-    <PublisherDisplayName>al3ta</PublisherDisplayName>
+    <PublisherDisplayName>mediaexplorer</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -36,10 +36,14 @@
         DisplayName="Alika"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="Alternative VK.com client"
+        Description="Alika, simplest VK sample"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="landscape"/>
+          <uap:Rotation Preference="portrait"/>
+          <uap:Rotation Preference="landscapeFlipped"/></uap:InitialRotationPreference>
       </uap:VisualElements>
     </Application>
   </Applications>

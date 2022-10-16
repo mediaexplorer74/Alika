@@ -1,11 +1,11 @@
-﻿using Alika.Libs.VK.Longpoll;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using Alika.Libs.VK.Longpoll;
 using Alika.Libs.VK.Methods;
 using Alika.Libs.VK.Responses;
 using Newtonsoft.Json;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Net;
 
 namespace Alika.Libs.VK
 {
@@ -46,7 +46,9 @@ namespace Alika.Libs.VK
         {
             this.Token = settings.Token;
             this.Domain = settings.ApiDomain;
-            this.UserId = this.Users.Get(new List<int>(), "photo_200, online_info")[0].UserId; // Getting current user's user_id & adding it's photo to cache
+
+            // Getting current user's user_id & adding it's photo to cache
+            this.UserId = this.Users.Get(new List<int>(), "photo_200, online_info")[0].UserId; 
         }
 
         public LongPoll GetLP() => new LongPoll(this);
@@ -60,12 +62,23 @@ namespace Alika.Libs.VK
         /// <returns>Deserialized object</returns>
         public Type Call<Type>(string method, Dictionary<string, dynamic> fields = null)
         {
-            var result = this.CallMethod(method, fields);
-            if (result.Contains("money_transfer")) System.Diagnostics.Debug.WriteLine(result);
+            string result = this.CallMethod(method, fields);
+
+            if (result.Contains("money_transfer"))
+            {
+                System.Diagnostics.Debug.WriteLine(result);
+            }
+            
             BasicResponse<Type> job = JsonConvert.DeserializeObject<BasicResponse<Type>>(result);
+
             if (job == null || job?.Error != null)
             {
-                throw new Exception(method + ": " + (job == null ? result : job.Error.Message));
+                //throw new Exception(method + ": " + (job == null ? result : job.Error.Message));
+                System.Diagnostics.Debug.WriteLine
+                    (
+                    "[ex] " + method + ": " + (job == null ? result : job.Error.Message));
+
+                return default;
             }
             else
             {
@@ -74,10 +87,17 @@ namespace Alika.Libs.VK
                     App.Cache.Update(items.Groups);
                     App.Cache.Update(items.Profiles);
 
-                    if (job.Response is ItemsResponse<Group> groups) App.Cache.Update(groups.Items);
-                    if (job.Response is ItemsResponse<User> users) App.Cache.Update(users.Items);
-                    if (job.Response is ItemsResponse<ConversationResponse> convs) App.Cache.Update(convs.Items);
-                    if (job.Response is ItemsResponse<ConversationInfo> convinfos) App.Cache.Update(convinfos.Items);
+                    if (job.Response is ItemsResponse<Group> groups) 
+                        App.Cache.Update(groups.Items);
+
+                    if (job.Response is ItemsResponse<User> users) 
+                        App.Cache.Update(users.Items);
+
+                    if (job.Response is ItemsResponse<ConversationResponse> convs) 
+                        App.Cache.Update(convs.Items);
+
+                    if (job.Response is ItemsResponse<ConversationInfo> convinfos) 
+                        App.Cache.Update(convinfos.Items);
                 }
                 else if (job.Response is GetImportantMessagesResponse response)
                 {
@@ -112,7 +132,10 @@ namespace Alika.Libs.VK
 
             if (fields != null && fields.Count > 0)
             {
-                foreach (KeyValuePair<string, dynamic> field in fields) request.AddOrUpdateParameter(field.Key, field.Value);
+                foreach (KeyValuePair<string, dynamic> field in fields)
+                {
+                    request.AddOrUpdateParameter(field.Key, field.Value);
+                }
             }
 
             return this._http.Post(request).Content;
@@ -121,20 +144,52 @@ namespace Alika.Libs.VK
         /// <summary>
         /// store.getStockItems with type=stickers
         /// </summary>
-        public ItemsResponse<StickerPackInfo> GetStickers() => this.Call<ItemsResponse<StickerPackInfo>>("store.getStockItems", new Dictionary<string, dynamic> { { "type", "stickers" } });
+        public ItemsResponse<StickerPackInfo> GetStickers()
+        {
+            return this.Call<ItemsResponse<StickerPackInfo>>("store.getStockItems", 
+                new Dictionary<string, dynamic> { { "type", "stickers" } });
+        }
 
         /// <summary>
         /// store.getStickersKeywords
         /// </summary>
         public GetStickersKeywordsResponse GetStickersKeywords()
         {
-            return this.Call<GetStickersKeywordsResponse>("store.getStickersKeywords", new Dictionary<string, dynamic> { });
+            return this.Call<GetStickersKeywordsResponse>("store.getStickersKeywords", 
+                new Dictionary<string, dynamic> { });
         }
 
-        public Groups Groups => new Groups(this);
-        public Users Users => new Users(this);
-        public Messages Messages => new Messages(this);
-        public Friends Friends => new Friends(this);
+        public Groups Groups
+        {
+            get
+            {
+                return new Groups(this);
+            }
+        }
+
+        public Users Users
+        {
+            get
+            {
+                return new Users(this);
+            }
+        }
+
+        public Messages Messages
+        {
+            get
+            {
+                return new Messages(this);
+            }
+        }
+
+        public Friends Friends
+        {
+            get
+            {
+                return new Friends(this);
+            }
+        }
 
         public class Settings
         {
